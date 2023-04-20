@@ -65,100 +65,76 @@ def clipTimings(config_action, key, config_start, config_stop):
 
     output_filename = f"{config_action}_{formatString}.mp4"
 
-    Clipping.trim(file_path2, output_filename, start_clip, end_clip)
+    #Clipping.trim(file_path2, output_filename, start_clip, end_clip)
+    print("mongomann\n")
 
 
 
 
 
-def jsontimestamps(config_action, cutType, numEvents, config_start, config_stop):
+def videoTypes(config_action, cutType, numEvents, config_start, config_stop):
 
-    counter = 0
-    if cutType == 1:
 
-        for key in data:
-            if data[key]["action"] == config_action:
-                      
+    i = 0
+    for key in data:
+        if data[key]["action"] == config_action:
+            
+            
+            if cutType == 1:       #cuttype seconds
+                
                 clipTimings(config_action, key, config_start, config_stop)
 
 
-                counter +=1
-                if counter == numEvents:
-                    break
-                
-               
+            elif cutType == 2:     #cuttype frames
 
-    elif cutType == 2:
-        for key in data:
-            if data[key]["action"] == config_action:
-                  
                 probe = ffmpeg.probe(file_path2)
-
                 video_stream = next((stream for stream in probe['streams'] if stream['codec_type'] == 'video'), None)
 
                 if video_stream is None:
                     print('No video stream found')
                     exit(1)
 
-
                 frame_rate_str = video_stream['avg_frame_rate']
-
                 x, y = frame_rate_str.split('/')
                 frame_rate = int(x) / int(y)
-
-
                 frames_bef = config_start/frame_rate
                 frames_aft = config_stop/frame_rate
 
-
-
                 clipTimings(config_action, key, frames_bef, frames_aft)
 
-                counter +=1
-                if counter == numEvents:
+
+            elif cutType == 3:     #cuttype duration
+
+
+                duration = config_start / 2
+                duration2 = config_start / 4
+                duration3 = duration + duration2
+
+                start_time = [0, duration2, duration, duration3, config_start][config_stop - 1]
+                end_time = [config_start, duration3, duration, duration2, 0][config_stop - 1]
+
+                print(start_time, end_time)
+                clipTimings(config_action, key, start_time, end_time)
+
+
+                i += 1
+                if i == numEvents:
                     break
 
-
-
-    elif cutType == 3:
-        for key in data:
-            if data[key]["action"] == config_action:
-
-                duration = config_start/2
-
-                clipTimings(config_action, key, duration, duration)
-
-
-                counter +=1
-                if counter == numEvents:
-                    break
-
-
-
- 
-
-#with open("config.json", 'r') as f:
- #   config = json.load(f)
 
 
 if __name__ == '__main__':
 
-    if (len(sys.argv) not in [5, 6] or
-        sys.argv[1] not in ['goal', 'red_card', 'yellow_card', 'free_kick', 'shot'] or
+    if (len(sys.argv) not in [6] or
+        sys.argv[1] not in ['goal', 'red_card', 'yellow_card', 'free_kick', 'shot', 'offside'] or
         sys.argv[2] not in ['1', '2', '3'] or
         not sys.argv[3].isdigit() or
         not sys.argv[4].isdigit() or
-        len(sys.argv) == 6 and not sys.argv[5].isdigit() or
-        len(sys.argv) == 6 and sys.argv[2] == '3' or
-        len(sys.argv) == 5 and not sys.argv[2] == '3'):
+        not sys.argv[5].isdigit() or
+        sys.argv[2] == 3 and not sys.argv[5] == ['1', '2', '3', '4', '5']):
         
-        if len(sys.argv) == 5:
-            print('Usage: {} [goal|red_card|yellow_card|free_kick|shot] [1|2|3] [must number, antall] [must number, lengde klipp]'.format(sys.argv[0]))
-    
-        else:
             print('Usage: {} [goal|red_card|yellow_card|free_kick|shot] [1|2|3] [must number, antall] [must number, før] [must number, etter]'.format(sys.argv[0]))
-        
-        exit(1)
+            exit(1)
 
 
 
@@ -169,16 +145,14 @@ if __name__ == '__main__':
     cutType = int(sys.argv[2])
     numEvents = int(sys.argv[3])
     secondsBef = int(sys.argv[4])
-
-    if len(sys.argv) == 6:
-        secondsAft = int(sys.argv[5])
-    else:
-        secondsAft = None
-
+    secondsAft = int(sys.argv[5])
 
     startvideo = formatjson()
 
     with open("output.json", 'r') as f:
         data = json.load(f)
 
-    jsontimestamps(eventType, cutType, numEvents, secondsBef, secondsAft)
+    videoTypes(eventType, cutType, numEvents, secondsBef, secondsAft)
+
+
+
