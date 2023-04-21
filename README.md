@@ -51,4 +51,20 @@ python video.py -eventTypeX -<numEvents> -cutType4  …
 
 ## Pipeline Function 2: Clipping Remote Assets using API
 
-...
+
+```
+python myawesomescript.py -clipType <TYPE>
+```
+
+| Types | Before Event Annotation | After Event Annotation |
+| ------------- | ------------- | ------------- |
+| (1) | first scene transition (any) | first scene transition (any)|
+| (2) | first scene transition (any) | first logo transition |
+| (3) | first scene transition (any) | second logo transition |
+| (4) | ... | ... |
+| (5) | ... | ... |
+  
+  
+  
+  
+  
