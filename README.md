@@ -9,7 +9,7 @@ You can run the pipeline function 1 in the following ways.
 Clip a configurable number of events of configurable event type with the clipping points specified as seconds before and seconds after:
 
 ```
-python video.py -eventTypeX -<numEvents> -cutType1 -<secondsBef> -<secondsAft>
+python video.py -eventTypeX -cutType1 -<numEvents> -<secondsBef> -<secondsAft>
 ```
 
 ### (B) 
@@ -17,7 +17,7 @@ python video.py -eventTypeX -<numEvents> -cutType1 -<secondsBef> -<secondsAft>
 Clip a configurable number of events of configurable event type with the clipping points specified as frames before and frames after:
 
 ```
-python video.py -eventTypeX -<numEvents> -cutType2 -<frameBef> -<frameAft>
+python video.py -eventTypeX -cutType2 -<numEvents> -<frameBef> -<frameAft>
 ```
 
 ### (C) 
@@ -25,7 +25,7 @@ python video.py -eventTypeX -<numEvents> -cutType2 -<frameBef> -<frameAft>
 Clip a configurable number of events of configurable event type with the total clip duration specified:
 
 ```
-python video.py -eventTypeX -<numEvents> -cutType3 -<duration> 
+python video.py -eventTypeX -cutType3 -<numEvents> -<duration> -alternative
 ```
 
 Alternatives: percentage of duration D, centered around event annotation E
@@ -51,9 +51,20 @@ python video.py -eventTypeX -<numEvents> -cutType4  …
 
 ## Pipeline Function 2: Clipping Remote Assets using API
 
+### (A) 
+
+Clip a highlight with a specific transition before and after the event:
 
 ```
-python myawesomescript.py -clipType <TYPE>
+python transitions.py -clipType -BeforeTransition -AfterTransition
+```
+
+### (B) 
+
+Clip a hightlight with the first transition before and after the event:
+
+```
+python transitions.py -clipType
 ```
 
 | Types | Before Event Annotation | After Event Annotation |
