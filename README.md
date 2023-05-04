@@ -72,8 +72,8 @@ python transitions.py -clipType
 | (1) | first scene transition (any) | first scene transition (any)|
 | (2) | first scene transition (any) | first logo transition |
 | (3) | first scene transition (any) | second logo transition |
-| (4) | ... | ... |
-| (5) | ... | ... |
+| (4) | full-shot scene transition | close-up scene transition |
+| (5) | first logo transition | second logo transition |
   
   
   
