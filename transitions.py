@@ -1,99 +1,160 @@
 import os
 import json
-import ffmpeg
 import sys
 import Clipping
 
-OVERWRITE_EXISTING_VIDEOS = False
-quality_level = 500000
-transitions_file = r'C:\Users\aulic\Downloads\Download-video_test 2\Download-video_test\transition.json'
-
-video2 = r'C:\Users\aulic\Downloads\Download-video_test 2\output.mp4'
 
 
-from_timestamp = 6800000
-to_timestamp = 6939999
-goal = 56
-frames = 25*goal
-print(frames, "mål frames")
 
-def transition_times(hendelse1, hendelse2, type2):
+
+def transition_times(cut1, cut2, number):
 
     with open(transitions_file, 'r') as f:
         transitions = json.load(f)
+
     first = True
-    actionaft2 = None
-    actionbef2 = None
+    action_after = None
+    action_before = None
+    i= 0
 
     for transition in transitions:
         start = int(transition["start_frame"])
 
-        if start >= frames:
+        if start >= frame:
             first = False
 
-        if type2 == True:
+
+        if cut1 == None and cut2 == None:
+
             if first:
-                actionbef2 = transition["end_frame"]
+                action_before = transition["end_frame"]
+                clip_name = transition["subcategory"]
+
             if not first:
-                actionaft2 = transition["start_frame"]
+
+                action_after = transition["start_frame"]
                 break
+        
+        elif cut1 == None and isinstance(cut2, str):
+
+            if first:
+                action_before = transition["end_frame"]
+                clip_name = transition["subcategory"]
+
+            if not first:
+                if cut2 == transition["subcategory"]:
+                    action_after = transition["start_frame"]
+                    i+=1
+
+                    if i == number:
+                        break
+
+        elif isinstance(cut1, str) and cut2 == None:
+
+            if first:
+                if cut2 == transition["subcategory"]:
+                    action_before = transition["end_frame"]
+                    clip_name = transition["subcategory"]
+                    i+=1
+
+                    if i == number:
+                        break
+
+            if not first:
+                action_after = transition["start_frame"]
+
+
+        elif cut1 == "logo" and cut2 == "logo":
+
+            if cut1 == transition["subcategory"] and i==0:
+                clip_name = transition["subcategory"]
+                action_before = transition["end_frame"]
+                i+=1
+
+            elif cut2 == transition["subcategory"] and i==1:
+                action_after = transition["start_frame"]
+                break
+
+                
 
         else:
-            if transition["subcategory"] == hendelse1 and first:
-                actionbef2 = transition["end_frame"]
-            if transition["subcategory"] == hendelse2 and not first:
-                actionaft2 = transition["start_frame"]
+
+            if transition["subcategory"] == cut1 and first:
+                action_before = transition["end_frame"]
+                clip_name = transition["subcategory"]
+
+            if transition["subcategory"] == cut2 and not first:
+                action_after = transition["start_frame"]
                 break
 
-    if (actionaft2 == None and type2 == False):
-        print('finner ikke hendelse før målet'.format(sys.argv[0]))
+
+
+    if (action_before == None):
+        print('Could not find the transition before the event'.format(sys.argv[0]))
         exit(1)
-    elif( actionbef2 == None and type2 == False):
-        print('finner ikke hendelse etter målet'.format(sys.argv[0]))
+
+    elif( action_after == None):
+        print('Could not find the transition after the event'.format(sys.argv[0]))
         exit(1)
-    print(actionbef2, " ", actionaft2)
 
-    actionbef = int(actionbef2)
-    actionaft = int(actionaft2)
-    secondsbef = actionbef/25
-    secondsaft = actionaft/25
+    print(action_before, " ", action_after)
 
-    output_filename = f"{actionbef}_{hendelse1}.mp4"
+    int_actionbef = int(action_before)
+    int_actionaft = int(action_after)
+    secondsbef = int_actionbef/25
+    secondsaft = int_actionaft/25
 
-    Clipping.trim(video2, output_filename, secondsbef, secondsaft)
-    
-    if __name__ == '__main__':
+
+    output_filename = file_name(clip_name)
+
+    Clipping.trim(video_path, output_filename, secondsbef, secondsaft)
+
+
+def file_name(navn):
+        
+    eventType = navn.replace(' ', '_')
+    folder_name = "videos"
+    if not os.path.exists(folder_name):
+        os.makedirs(folder_name)
+
+    output_filename = f"{folder_name}/{eventType}_{sys.argv[1]}.mp4"
+    return output_filename
+
+
+
+if __name__ == '__main__':
   
 
-    if len(sys.argv) not in [2, 4] or \
-    sys.argv[1] not in ['1','2'] or \
-    (len(sys.argv) == 4 and \
-    (sys.argv[2] not in ['Long_Shot', 'Medium_Shot', 'Close-up_Shot', 'Full_Shot'] or \
-        sys.argv[3] not in ['Long_Shot', 'Medium_Shot', 'Close-up_Shot', 'Full_Shot'])) or \
-    len(sys.argv) == 2 and sys.argv[1] == '1' or \
-    len(sys.argv) == 4 and sys.argv[1] == '2':
-        
-        if (len(sys.argv) == 4):
-            print('Usage: {} [1] [Long_Shot|Medium_Shot|Close-up_Shot|Full_Shot] [Long_Shot|Medium_Shot|Close-up_Shot|Full_Shot]'.format(sys.argv[0]))
-        else:
-            print('Usage: {} [2]'.format(sys.argv[0]))
+    if len(sys.argv) not in [2] or\
+        sys.argv[1] not in ['1','2','3','4','5']:
+        print('Usage: {} [1, 2, 3, 4, 5]'.format(sys.argv[0]))
         exit(1)
 
-        
-
-    if (sys.argv[1] == '1'):
-        type1 = False
-
-    else:
-        type1 = True
+    transitions_file = r'C:\Users\aulic\Downloads\Download-video_test 2\Download-video_test\transition_3714.json'
+    video_path = r'C:\Users\aulic\Downloads\Download-video_test 2\yel_card.mp4'
+    event = 26
+    frame = 25 * event
 
 
-    hendelse1 = None
-    hendelse2 = None
+    cut1 = None
+    cut2 = None
+    counter = 1
 
-    if sys.argv[1] == '1':
-        hendelse1 = sys.argv[2].replace('_', ' ')
-        hendelse2 = sys.argv[3].replace('_', ' ')
+    if (sys.argv[1] == '2'):
+        cut2 = "logo"
+
+    elif (sys.argv[1] == '3'):
+        cut2 = "logo"
+        counter = 2
+
+    elif (sys.argv[1] == '4'):
+        cut1 = "Full Shot"
+        cut2 = "Close-up Shot"
+
+    elif (sys.argv[1] == '5'):
+        cut1 = "logo"
+        cut2 = "logo"
 
 
-    transition_times(hendelse1, hendelse2, type1)
+
+    transition_times(cut1, cut2, counter)
