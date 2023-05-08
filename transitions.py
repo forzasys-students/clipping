@@ -3,19 +3,24 @@ import json
 import sys
 import Clipping
 
-
+TRANSITIONS_FILE = r'C:\Users\aulic\Downloads\Download-video_test 2\Download-video_test\transition_sub.json'
+VIDEO_PATH = r'C:\Users\aulic\Downloads\Download-video_test 2\substitution.mp4'
 
 
 
 def transition_times(cut1, cut2, number):
 
-    with open(transitions_file, 'r') as f:
+    with open(TRANSITIONS_FILE, 'r') as f:
         transitions = json.load(f)
 
     first = True
+    action_before = -1
     action_after = None
-    action_before = None
-    i= 0
+    count= 0
+    last_transition = None
+    scene_transition = None 
+    in_transitions = {"Long Shot",  "Close-up Shot"}
+    out_transitions = {"Medium Shot", "Full Shot"}
 
     for transition in transitions:
         start = int(transition["start_frame"])
@@ -23,81 +28,79 @@ def transition_times(cut1, cut2, number):
         if start >= frame:
             first = False
 
+        # cut the first zoom in before event and first zoom out after
+        if sys.argv[1] == '6': 
+            last_transition = scene_transition
+            scene_transition = transition["subcategory"]   
+            if first:
+                if scene_transition in out_transitions and last_transition in in_transitions:
+                    clip_name = transition["subcategory"]
+                    action_before = transition["end_frame"]
+            else:
+                if last_transition in in_transitions and scene_transition in out_transitions:
+                    action_after = transition["start_frame"]
+                    break
 
-        if cut1 == None and cut2 == None:
-
+        # cut the first transition before and after the event 
+        elif cut1 is None and cut2 is None:
             if first:
                 action_before = transition["end_frame"]
                 clip_name = transition["subcategory"]
-
-            if not first:
-
+            else:
                 action_after = transition["start_frame"]
                 break
-        
-        elif cut1 == None and isinstance(cut2, str):
 
+        # cut the first scene transition and a certain transition of a certain amount of instances after the event
+        elif cut1 is None and isinstance(cut2, str): 
             if first:
                 action_before = transition["end_frame"]
                 clip_name = transition["subcategory"]
-
-            if not first:
+            else:
                 if cut2 == transition["subcategory"]:
                     action_after = transition["start_frame"]
-                    i+=1
-
-                    if i == number:
+                    count += 1
+                    if count == number:
                         break
 
-        elif isinstance(cut1, str) and cut2 == None:
-
+        # cut the first instance of the certain transition before and the first transition after the event
+        elif isinstance(cut1, str) and cut2 is None: 
             if first:
-                if cut2 == transition["subcategory"]:
+                if cut1 == transition["subcategory"]:
                     action_before = transition["end_frame"]
                     clip_name = transition["subcategory"]
-                    i+=1
-
-                    if i == number:
-                        break
-
-            if not first:
+            else:
                 action_after = transition["start_frame"]
 
-
+        # cut the first and second logo transition after the event
         elif cut1 == "logo" and cut2 == "logo":
+            if not first:
+                if cut1 == transition["subcategory"] and count == 0:
+                    clip_name = transition["subcategory"]
+                    action_before = transition["end_frame"]
+                    count += 1
+                elif cut2 == transition["subcategory"] and count == 1:
+                    action_after = transition["start_frame"]
+                    break
 
-            if cut1 == transition["subcategory"] and i==0:
-                clip_name = transition["subcategory"]
-                action_before = transition["end_frame"]
-                i+=1
-
-            elif cut2 == transition["subcategory"] and i==1:
-                action_after = transition["start_frame"]
-                break
-
-                
-
-        else:
-
+        # cut the first event with the correct transition before and the same after
+        else: 
             if transition["subcategory"] == cut1 and first:
                 action_before = transition["end_frame"]
                 clip_name = transition["subcategory"]
-
-            if transition["subcategory"] == cut2 and not first:
+            elif transition["subcategory"] == cut2 and not first:
                 action_after = transition["start_frame"]
                 break
 
 
 
-    if (action_before == None):
+    if (action_before == -1):
         print('Could not find the transition before the event'.format(sys.argv[0]))
         exit(1)
 
-    elif( action_after == None):
+    elif (action_after == None):
         print('Could not find the transition after the event'.format(sys.argv[0]))
         exit(1)
 
-    print(action_before, " ", action_after)
 
     int_actionbef = int(action_before)
     int_actionaft = int(action_after)
@@ -107,7 +110,9 @@ def transition_times(cut1, cut2, number):
 
     output_filename = file_name(clip_name)
 
-    Clipping.trim(video_path, output_filename, secondsbef, secondsaft)
+    Clipping.trim(VIDEO_PATH, output_filename, secondsbef, secondsaft)
+
+
 
 
 def file_name(navn):
@@ -126,16 +131,15 @@ if __name__ == '__main__':
   
 
     if len(sys.argv) not in [2] or\
-        sys.argv[1] not in ['1','2','3','4','5']:
-        print('Usage: {} [1, 2, 3, 4, 5]'.format(sys.argv[0]))
+        sys.argv[1] not in ['1','2','3','4','5','6']:
+        print('Usage: {} [1, 2, 3, 4, 5,6]'.format(sys.argv[0]))
         exit(1)
 
-    transitions_file = r'C:\Users\aulic\Downloads\Download-video_test 2\Download-video_test\transition_3714.json'
-    video_path = r'C:\Users\aulic\Downloads\Download-video_test 2\yel_card.mp4'
-    event = 26
+    TRANSITIONS_FILE = r'C:\Users\aulic\Downloads\Download-video_test 2\Download-video_test\transition_sub.json'
+    VIDEO_PATH = r'C:\Users\aulic\Downloads\Download-video_test 2\substitution.mp4'
+    
+    event = 25
     frame = 25 * event
-
-
     cut1 = None
     cut2 = None
     counter = 1
@@ -154,7 +158,6 @@ if __name__ == '__main__':
     elif (sys.argv[1] == '5'):
         cut1 = "logo"
         cut2 = "logo"
-
 
 
     transition_times(cut1, cut2, counter)
