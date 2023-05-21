@@ -39,27 +39,11 @@ Alternative | Before E | After E |
 | (C5) | 100% | 0% |
 
 
-### (D) 
-
-...
-
-```
-python video.py -eventTypeX -<numEvents> -cutType4  …
-```
-
-
 
 ## Pipeline Function 2: Clipping Remote Assets using API
 
+
 ### (A) 
-
-Clip a highlight with a specific transition before and after the event:
-
-```
-python transitions.py -clipType -BeforeTransition -AfterTransition
-```
-
-### (B) 
 
 Clip a hightlight with the first transition before and after the event:
 
