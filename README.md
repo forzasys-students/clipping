@@ -58,7 +58,7 @@ python transitions.py -clipType
 | (3) | first scene transition (any) | second logo transition |
 | (4) | full shot transition | close-up transition |
 | (5) | first logo transition | second logo transition |
-  
+| (6) | first zoom in before event | first zoom out after event |
   
   
   
