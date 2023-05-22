@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 import sys
 import ffmpeg
 import Clipping
+import os 
 
 # Path to the JSON file containing metadata
 JSON_PATH = r'C:\Users\aulic\Downloads\Download-video_test 2\Download-video_test\videoer\1089\meta_1089.txt'
@@ -53,8 +54,13 @@ def clipname(start_clip, config_action):
     matchtime_str = str(start_clip)
     formatString = matchtime_str.replace(':', "-")
 
-    output_filename = f"{config_action}_{formatString}.mp4"
+    folder_name = "videos"
+    if not os.path.exists(folder_name):
+        os.makedirs(folder_name)
+
+    output_filename = f"{folder_name}/{config_action}_{formatString}.mp4"
     return output_filename
+
 
 # Function to perform video clipping based on specified timings
 def clipTimings(config_action, key, config_start, config_stop):
