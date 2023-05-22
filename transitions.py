@@ -3,8 +3,19 @@ import json
 import sys
 import Clipping
 
-TRANSITIONS_FILE = r'C:\Users\aulic\Downloads\Download-video_test 2\Download-video_test\transition_sub.json'
+
+TRANSITIONS_FILE = r'C:\Users\aulic\Downloads\Download-video_test 2\json_files\transition_sub.json'
 VIDEO_PATH = r'C:\Users\aulic\Downloads\Download-video_test 2\substitution.mp4'
+
+
+def errorhandling(action_before, action_after):
+    if (action_before == -1):
+        print('Could not find the transition before the event'.format(sys.argv[0]))
+        exit(1)
+
+    elif (action_after == None):
+        print('Could not find the transition after the event'.format(sys.argv[0]))
+        exit(1)
 
 
 def transition_times(cut1, cut2, number):
@@ -27,7 +38,7 @@ def transition_times(cut1, cut2, number):
         if start >= frame:
             first = False
 
-        # cut the first zoom in before event and first zoom out after
+        # cut to the first zoom in before event and first zoom out after
         if sys.argv[1] == '6': 
             last_transition = scene_transition
             scene_transition = transition["subcategory"]   
@@ -81,7 +92,7 @@ def transition_times(cut1, cut2, number):
                     action_after = transition["start_frame"]
                     break
 
-        # cut the first event with the correct transition before and the same after
+        # cut the first event with the correct transition before and after
         else: 
             if transition["subcategory"] == cut1 and first:
                 action_before = transition["end_frame"]
@@ -91,24 +102,15 @@ def transition_times(cut1, cut2, number):
                 break
 
 
-    if (action_before == -1):
-        print('Could not find the transition before the event'.format(sys.argv[0]))
-        exit(1)
+    errorhandling(action_before, action_after)
 
-    elif (action_after == None):
-        print('Could not find the transition after the event'.format(sys.argv[0]))
-        exit(1)
-
-
-    int_actionbef = int(action_before)
-    int_actionaft = int(action_after)
-    secondsbef = int_actionbef/25
-    secondsaft = int_actionaft/25
-
+    secondsbef = int(action_before) / 25
+    secondsaft = int(action_after) / 25
 
     output_filename = file_name(clip_name)
 
     Clipping.trim(VIDEO_PATH, output_filename, secondsbef, secondsaft)
+
 
 
 
@@ -123,15 +125,12 @@ def file_name(navn):
     return output_filename
 
 
-if __name__ == '__main__':
-  
 
+if __name__ == '__main__':
     if len(sys.argv) not in [2] or\
         sys.argv[1] not in ['1','2','3','4','5','6']:
         print('Usage: {} [1, 2, 3, 4, 5, 6]'.format(sys.argv[0]))
         exit(1)
-
-
     
     event = 25
     frame = 25 * event
@@ -140,6 +139,7 @@ if __name__ == '__main__':
     counter = 1
 
     if (sys.argv[1] == '2'):
+        cut1 = "Full Shot"
         cut2 = "logo"
 
     elif (sys.argv[1] == '3'):
@@ -153,6 +153,5 @@ if __name__ == '__main__':
     elif (sys.argv[1] == '5'):
         cut1 = "logo"
         cut2 = "logo"
-
 
     transition_times(cut1, cut2, counter)
