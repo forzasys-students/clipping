@@ -7,7 +7,6 @@ TRANSITIONS_FILE = r'C:\Users\aulic\Downloads\Download-video_test 2\Download-vid
 VIDEO_PATH = r'C:\Users\aulic\Downloads\Download-video_test 2\substitution.mp4'
 
 
-
 def transition_times(cut1, cut2, number):
 
     with open(TRANSITIONS_FILE, 'r') as f:
@@ -92,7 +91,6 @@ def transition_times(cut1, cut2, number):
                 break
 
 
-
     if (action_before == -1):
         print('Could not find the transition before the event'.format(sys.argv[0]))
         exit(1)
@@ -114,7 +112,6 @@ def transition_times(cut1, cut2, number):
 
 
 
-
 def file_name(navn):
         
     eventType = navn.replace(' ', '_')
@@ -126,17 +123,15 @@ def file_name(navn):
     return output_filename
 
 
-
 if __name__ == '__main__':
   
 
     if len(sys.argv) not in [2] or\
         sys.argv[1] not in ['1','2','3','4','5','6']:
-        print('Usage: {} [1, 2, 3, 4, 5,6]'.format(sys.argv[0]))
+        print('Usage: {} [1, 2, 3, 4, 5, 6]'.format(sys.argv[0]))
         exit(1)
 
-    TRANSITIONS_FILE = r'C:\Users\aulic\Downloads\Download-video_test 2\Download-video_test\transition_sub.json'
-    VIDEO_PATH = r'C:\Users\aulic\Downloads\Download-video_test 2\substitution.mp4'
+
     
     event = 25
     frame = 25 * event
