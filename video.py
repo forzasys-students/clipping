@@ -131,8 +131,8 @@ if __name__ == '__main__':
             not sys.argv[3].isdigit() or
             not sys.argv[4].isdigit() or
             not sys.argv[5].isdigit() or
-            sys.argv[2] == '3' and not sys.argv[5] == ['1', '2', '3', '4', '5']):
-        if sys.argv[2] == 3:
+            sys.argv[2] == '3' and sys.argv[5] not in ['1', '2', '3', '4', '5']):
+        if sys.argv[2] == '3':
             print('Usage: {} [goal|red_card|yellow_card|free_kick|shot|substitution|corner|penalty]'
             ' [1|2|3] [number of events] [amount of duration] [1|2|3|4|5]'
             .format(sys.argv[0]))
