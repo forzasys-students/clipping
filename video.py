@@ -50,15 +50,18 @@ def formatjson():
         return startvideo
     
 
-def clipname(start_clip, config_action):
+def clipname(start_clip, config_action, folder_name="videos"):
+    try:
+        if not os.path.exists(folder_name):
+            os.makedirs(folder_name)
+    except OSError as e:
+            print(f"Error creating folder: {e}")
+
     matchtime_str = str(start_clip)
     formatString = matchtime_str.replace(':', "-")
 
-    folder_name = "videos"
-    if not os.path.exists(folder_name):
-        os.makedirs(folder_name)
-
     output_filename = f"{folder_name}/{config_action}_{formatString}.mp4"
+
     return output_filename
 
 
@@ -104,14 +107,17 @@ def duration(config_start, config_stop):
 
     start_time = [0, duration2, duration, duration3, config_start][config_stop - 1]
     end_time = [config_start, duration3, duration, duration2, 0][config_stop - 1]
+
     return start_time, end_time
 
 
 # Function to process different types of video events
 def videoTypes(config_action, cutType, numEvents, config_start, config_stop):
     i = 0
+    action_found = False 
     for key in data:
         if data[key]["action"] == config_action:
+            action_found = True
             if cutType == 1:  # cuttype seconds
                 i += 1
                 clipTimings(config_action, key, config_start, config_stop)
@@ -128,11 +134,15 @@ def videoTypes(config_action, cutType, numEvents, config_start, config_stop):
         
         if i == numEvents:
             break
+        
+    if not action_found:
+        print('ERROR: {} Did not find any action for your configuration in the JSON file'.format(sys.argv[0]))
+
 
 if __name__ == '__main__':
     # Validate command-line arguments
     if (len(sys.argv) not in [6] or
-            sys.argv[1] not in ['goal', 'red_card', 'yellow_card', 'free_kick', 'shot', 'offside', 'substitution', 'corner','penalty'] or
+            sys.argv[1] not in ['goal', 'red_card', 'yellow_card', 'free_kick', 'shot', 'offside', 'substitution', 'corner','penalty', 'tja'] or
             sys.argv[2] not in ['1', '2', '3'] or
             not sys.argv[3].isdigit() or
             not sys.argv[4].isdigit() or
